@@ -1,0 +1,13 @@
+{
+  "name": "io3 Community",
+  "short_name": "io3",
+  "description": "Partage d'expérience d'autonomie électrique io3 4X2 / 4X4 et chat communauté",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

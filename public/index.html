@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="description" content="Communauté io3 : partage ton autonomie électrique 4X2 / 4X4 et discute avec les autres conducteurs." />
+  <title>io3 Community</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <!-- ========== AUTH ========== -->
+  <section id="auth" class="auth" hidden>
+    <div class="auth-card">
+      <div class="brand big"><span class="logo">⚡</span> io3 <b>Community</b></div>
+      <p class="muted">Partage ton autonomie électrique réelle en 4X2 ou 4X4, compare et discute avec la communauté.</p>
+
+      <div class="seg" role="tablist">
+        <button class="seg-btn active" data-auth="login" role="tab">Connexion</button>
+        <button class="seg-btn" data-auth="register" role="tab">Créer un compte</button>
+      </div>
+
+      <form id="loginForm" class="form">
+        <label>Pseudo ou email<input name="login" autocomplete="username" required /></label>
+        <label>Mot de passe<input name="password" type="password" autocomplete="current-password" required /></label>
+        <button class="btn primary" type="submit">Se connecter</button>
+      </form>
+
+      <form id="registerForm" class="form" hidden>
+        <label>Pseudo<input name="username" autocomplete="username" minlength="3" maxlength="30" required /></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+        <label>Mot de passe <small class="muted">(8 caractères min.)</small>
+          <input name="password" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <fieldset class="choice">
+          <legend>Ma version io3</legend>
+          <label class="pill"><input type="radio" name="version" value="4X2" checked /><span>4X2</span></label>
+          <label class="pill"><input type="radio" name="version" value="4X4" /><span>4X4</span></label>
+        </fieldset>
+        <label>Ville / région <small class="muted">(optionnel)</small><input name="city" maxlength="60" /></label>
+        <button class="btn primary" type="submit">Créer mon compte</button>
+      </form>
+      <p id="authError" class="error" role="alert"></p>
+    </div>
+  </section>
+
+  <!-- ========== APP ========== -->
+  <div id="app" class="layout" hidden>
+    <nav class="nav">
+      <div class="brand"><span class="logo">⚡</span> io3 <b>Community</b></div>
+      <button class="nav-btn active" data-view="feed"><span>🚗</span><em>Trajets</em></button>
+      <button class="nav-btn" data-view="add"><span>➕</span><em>Ajouter</em></button>
+      <button class="nav-btn" data-view="stats"><span>📊</span><em>Stats</em></button>
+      <button class="nav-btn" data-view="chat"><span>💬</span><em>Chat</em><i id="chatBadge" class="badge" hidden></i></button>
+      <button class="nav-btn" data-view="profile"><span>👤</span><em>Profil</em></button>
+    </nav>
+
+    <main class="main">
+      <!-- Fil des trajets -->
+      <section id="view-feed" class="view">
+        <header class="view-head">
+          <h1>Expériences de la communauté</h1>
+          <div class="seg small" id="feedFilter">
+            <button class="seg-btn active" data-f="">Tous</button>
+            <button class="seg-btn" data-f="4X2">4X2</button>
+            <button class="seg-btn" data-f="4X4">4X4</button>
+            <button class="seg-btn" data-f="mine">Les miens</button>
+          </div>
+        </header>
+        <div id="tripList" class="cards"></div>
+      </section>
+
+      <!-- Ajouter un trajet -->
+      <section id="view-add" class="view" hidden>
+        <header class="view-head"><h1>Partager un trajet</h1></header>
+        <form id="tripForm" class="form panel">
+          <fieldset class="choice">
+            <legend>Version</legend>
+            <label class="pill"><input type="radio" name="version" value="4X2" /><span>4X2</span></label>
+            <label class="pill"><input type="radio" name="version" value="4X4" /><span>4X4</span></label>
+          </fieldset>
+          <div class="grid3">
+            <label>Distance (km)<input name="distance_km" type="number" inputmode="decimal" step="0.1" min="1" required /></label>
+            <label>Batterie départ (%)<input name="battery_start" type="number" inputmode="numeric" min="1" max="100" required /></label>
+            <label>Batterie arrivée (%)<input name="battery_end" type="number" inputmode="numeric" min="0" max="99" required /></label>
+          </div>
+          <div class="estimate" id="estimate">Autonomie estimée à 100 % : —</div>
+          <fieldset class="choice">
+            <legend>Type de parcours</legend>
+            <label class="pill"><input type="radio" name="route_type" value="ville" /><span>🏙️ Ville</span></label>
+            <label class="pill"><input type="radio" name="route_type" value="route" /><span>🛣️ Route</span></label>
+            <label class="pill"><input type="radio" name="route_type" value="autoroute" /><span>🚀 Autoroute</span></label>
+            <label class="pill"><input type="radio" name="route_type" value="mixte" checked /><span>🔀 Mixte</span></label>
+          </fieldset>
+          <fieldset class="choice">
+            <legend>Mode de conduite</legend>
+            <label class="pill"><input type="radio" name="drive_mode" value="eco" /><span>Eco</span></label>
+            <label class="pill"><input type="radio" name="drive_mode" value="normal" checked /><span>Normal</span></label>
+            <label class="pill"><input type="radio" name="drive_mode" value="sport" /><span>Sport</span></label>
+          </fieldset>
+          <div class="grid3">
+            <label>Conso. (kWh/100km)<input name="consumption" type="number" inputmode="decimal" step="0.1" placeholder="optionnel" /></label>
+            <label>Température (°C)<input name="temp_c" type="number" inputmode="decimal" step="1" placeholder="optionnel" /></label>
+            <label>Vitesse moy. (km/h)<input name="avg_speed" type="number" inputmode="decimal" step="1" placeholder="optionnel" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="climate" /> Clim / chauffage utilisé</label>
+          <label>Commentaire<textarea name="notes" rows="3" maxlength="1000" placeholder="Ex : autoroute à 120, vent de face, 2 passagers…"></textarea></label>
+          <label class="check"><input type="checkbox" name="share" checked /> Partager aussi dans le chat de la communauté</label>
+          <button class="btn primary" type="submit">Publier mon expérience</button>
+          <p id="tripError" class="error" role="alert"></p>
+        </form>
+      </section>
+
+      <!-- Stats -->
+      <section id="view-stats" class="view" hidden>
+        <header class="view-head"><h1>4X2 vs 4X4 — autonomie réelle</h1></header>
+        <div id="statsBox" class="stats"></div>
+      </section>
+
+      <!-- Chat -->
+      <section id="view-chat" class="view chat-view" hidden>
+        <header class="view-head">
+          <h1>Chat communauté io3</h1>
+          <span id="onlineInfo" class="muted small-text"></span>
+        </header>
+        <div id="chatList" class="chat-list" aria-live="polite"></div>
+        <form id="chatForm" class="chat-form">
+          <input name="text" placeholder="Écris un message…" maxlength="1000" autocomplete="off" />
+          <button class="btn primary" type="submit">Envoyer</button>
+        </form>
+      </section>
+
+      <!-- Profil -->
+      <section id="view-profile" class="view" hidden>
+        <header class="view-head"><h1>Mon profil</h1></header>
+        <div class="panel">
+          <p class="profile-name" id="profileName"></p>
+          <p class="muted" id="profileMeta"></p>
+          <form id="profileForm" class="form">
+            <fieldset class="choice">
+              <legend>Ma version io3</legend>
+              <label class="pill"><input type="radio" name="version" value="4X2" /><span>4X2</span></label>
+              <label class="pill"><input type="radio" name="version" value="4X4" /><span>4X4</span></label>
+            </fieldset>
+            <label>Ville / région<input name="city" maxlength="60" /></label>
+            <button class="btn" type="submit">Enregistrer</button>
+          </form>
+          <hr />
+          <button id="installBtn" class="btn" hidden>📲 Installer l'app sur ce téléphone</button>
+          <button id="logoutBtn" class="btn danger">Se déconnecter</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

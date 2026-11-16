@@ -32,18 +32,23 @@ Variables d'environnement :
 |---|---|
 | `PORT` | port d'écoute (fourni par l'hébergeur) |
 | `JWT_SECRET` | longue chaîne aléatoire secrète (signe les sessions) |
-| `DATA_DIR` | dossier **persistant** de la base SQLite (ex. `/var/data`) |
+| `DATABASE_URL` | base Turso en ligne (`libsql://…turso.io`) — si absente, fichier SQLite local |
+| `DATABASE_AUTH_TOKEN` | jeton d'accès Turso |
+| `DATA_DIR` | dossier de la base SQLite locale (quand `DATABASE_URL` n'est pas défini) |
 
-⚠️ Sans disque persistant, comptes, trajets et messages sont **effacés à chaque redéploiement**.
+⚠️ Sur un hébergement gratuit le disque est effacé à chaque redémarrage : utilise **Turso**
+(`DATABASE_URL`) ou un disque persistant (`DATA_DIR`), sinon comptes, trajets et messages sont perdus.
 L'hébergement doit être en **HTTPS** (fourni automatiquement par les options ci-dessous).
 
-### Option A — Render (le plus simple)
-1. Mets ce dossier sur un dépôt GitHub (privé ou public).
-2. Sur render.com : **New → Blueprint** → choisis le dépôt. Le fichier `render.yaml` configure tout :
-   Node 24, disque persistant de 1 Go sur `/var/data`, `JWT_SECRET` généré automatiquement,
-   vérification de santé `/healthz`.
-3. Le disque persistant nécessite un plan payant (Starter). Render te donne une adresse
-   `https://io3-community.onrender.com` (ou un nom proche) à partager dans le chat de la communauté.
+### Option A — Render gratuit + Turso gratuit (configuration actuelle)
+1. **Turso** (turso.tech) : crée un compte → **Create Database** (`io3`, région proche, ex. Frankfurt).
+   Copie l'**URL** (`libsql://io3-….turso.io`) et crée un **token** (Generate Token).
+2. **Render** : **New → Blueprint** → dépôt `i03`. Le fichier `render.yaml` crée un service gratuit.
+   Renseigne `DATABASE_URL` et `DATABASE_AUTH_TOKEN` avec les valeurs Turso, puis **Apply**.
+3. Les tables sont créées automatiquement au premier démarrage. Render donne une adresse
+   `https://io3-community.onrender.com` (ou proche) à partager dans le chat de la communauté.
+4. Plan gratuit : l'app se met en veille après ~15 min sans visite ; la première ouverture prend
+   ~30–60 s, puis tout est normal. Les données restent dans Turso.
 
 ### Option B — Railway
 1. Dépôt GitHub → railway.app → **New Project → Deploy from GitHub repo** (le `Dockerfile` est détecté).

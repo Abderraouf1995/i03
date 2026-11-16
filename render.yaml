@@ -1,10 +1,11 @@
 # Blueprint Render : https://render.com/docs/blueprint-spec
-# Render > New > Blueprint > choisir ce dépôt GitHub.
+# Plan gratuit : les données sont stockées dans une base Turso (gratuite, persistante).
+# Render > New > Blueprint > choisir ce dépôt GitHub, puis renseigner DATABASE_URL et DATABASE_AUTH_TOKEN.
 services:
   - type: web
     name: io3-community
     runtime: node
-    plan: starter            # un disque persistant nécessite un plan payant
+    plan: free
     region: frankfurt
     buildCommand: npm ci --omit=dev
     startCommand: npm start
@@ -12,11 +13,9 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "24"
-      - key: DATA_DIR
-        value: /var/data
       - key: JWT_SECRET
         generateValue: true
-    disk:
-      name: io3-data
-      mountPath: /var/data
-      sizeGB: 1
+      - key: DATABASE_URL          # ex. libsql://io3-xxxx.turso.io
+        sync: false
+      - key: DATABASE_AUTH_TOKEN   # jeton Turso
+        sync: false
